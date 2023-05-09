@@ -1,0 +1,27 @@
+name: Check for Specific Folder
+
+on: [push]
+
+jobs:
+  check_folder:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.head_ref || github.ref_name }}
+        fetch-depth: 0
+
+    - name: Check for specific folder
+      run: |
+        # Check if a specific folder exists in any directories within the repository
+        if find . -name "Helper" -type d -prune | grep -q "Helper"; then
+          echo "Folder Helper exists"
+        else
+          echo "Folder Helper does not exist"
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git revert --no-edit HEAD
+          git push
+        fi
